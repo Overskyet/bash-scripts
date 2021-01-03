@@ -1,0 +1,6 @@
+#!/bin/bash
+
+amixer -c 1 set Master 100%
+amixer -c 1 set Headphone unmute
+amixer -c 1 set Headphone 100%
+amixer -c 1 set Front 0%
