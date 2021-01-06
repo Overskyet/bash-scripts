@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+if [ $# -lt 4 ]
+then
+    echo "-p and -n flags are mandatory!"
+    exit 1
+elif [ $# -gt 4 ]
+then
+    echo "There are no other flags than -p and -n!"
+    exit 1
+else
+    readonly _access_token="23318fd3f40afdf0103d4e3816a7ed14108bb6de"
+    _remote_repo_url=""
+    _local_path=""
+    _project_name=""
+    _response_body=""
+    if [ "$_access_token" = "" ]
+    then
+        echo "You should add your access token!"
+        exit 1
+    fi
+    while getopts "p:n:" opt
+    do
+        case $opt in
+            p) 
+                echo "Found option $opt"
+                echo "Found argument for option $opt - $OPTARG"
+#                 checkargs
+                _local_path="$OPTARG"
+                ;;
+            n)
+                echo "Found option $opt"
+                echo "Found argument for option $opt - $OPTARG"
+#                 checkargs
+                _project_name="$OPTARG"
+                ;;
+            *)
+                echo "Wrong flag!"
+                exit 1
+                ;;
+        esac
+    done
+    if [ "$_local_path" = "" ] || [ "$_project_name" = "" ]
+    then
+        echo "Wrong arguments!"
+        exit 1
+    fi
+    _response_body=$(curl -XPOST -H "Authorization: token $_access_token" https://api.github.com/user/repos -d "{\"name\":\"$_project_name\",\"description\":\"My new repository\", \"private\":\"true\"}")
+    _remote_repo_url=$(echo "$_response_body" | jq -r '.clone_url')
+    echo $_response_body
+    echo $_remote_repo_url
+    if [ "$_remote_repo_url" = "null" ]
+    then
+        echo "Something is wrong with the request! Check your access token and project name and try again."
+        exit 1
+    fi
+    git init "$_local_path"
+    echo "Git init passed"
+    git -C "$_local_path" add .
+    echo "Git add passed"
+    git -C "$_local_path" commit -m "Init commit"
+    echo "Git commit passed"
+    git -C "$_local_path" remote add origin "$_remote_repo_url"
+    echo "Git remote add origin passed"
+    git -C "$_local_path" remote -v
+    echo "Git remote passed"
+    git -C "$_local_path" push -u origin master
+    echo "Git push passed"
+#checkargs () {
+#    if [[ $OPTARG =~ ^-[p/n]$ ]]
+#    then
+#        echo "Wrong argument for $1!"
+#        exit 1
+#        # elif [[ $OPTARG =~ ]]
+#    fi
+#}
+fi
+exit 0
