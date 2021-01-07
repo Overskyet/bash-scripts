@@ -9,7 +9,7 @@ then
     echo "There are no other flags than -p and -n!"
     exit 1
 else
-    readonly _access_token="23318fd3f40afdf0103d4e3816a7ed14108bb6de"
+    readonly _access_token=""
     _remote_repo_url=""
     _local_path=""
     _project_name=""
